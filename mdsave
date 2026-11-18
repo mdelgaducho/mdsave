@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# MDsave - Universal CLI Launcher
+# Works on Linux, macOS, Android (Termux), and Windows (Git Bash/MSYS2/Cygwin/WSL)
+# ==============================================================================
+
+# 1. Resolve real script location even if invoked through symlinks
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+
+# Candidate paths for mdsave.py
+CANDIDATES=(
+    "$SCRIPT_DIR/mdsave.py"
+    "$SCRIPT_DIR/../share/mdsave/mdsave.py"
+    "/usr/local/share/mdsave/mdsave.py"
+    "/usr/share/mdsave/mdsave.py"
+    "${PREFIX:-/data/data/com.termux/files/usr}/share/mdsave/mdsave.py"
+    "$HOME/.local/share/mdsave/mdsave.py"
+    "$HOME/.mdsave/mdsave.py"
+)
+
+# On Windows Git Bash, add APPDATA candidate
+if [ -n "$LOCALAPPDATA" ] && command -v cygpath >/dev/null 2>&1; then
+    WIN_APP_DIR="$(cygpath -u "$LOCALAPPDATA" 2>/dev/null)/mdsave/mdsave.py"
+    CANDIDATES+=("$WIN_APP_DIR")
+fi
+
+REAL_SCRIPT=""
+for candidate in "${CANDIDATES[@]}"; do
+    if [ -n "$candidate" ] && [ -f "$candidate" ]; then
+        REAL_SCRIPT="$candidate"
+        break
+    fi
+done
+
+if [ -z "$REAL_SCRIPT" ]; then
+    echo -e "\033[91m[!] Error: No se pudo localizar 'mdsave.py'.\033[0m" >&2
+    echo "Por favor reinstala MDsave ejecutando: ./install.sh" >&2
+    exit 1
+fi
+
+# 2. Find best available Python 3 interpreter
+PYTHON_BIN=""
+if command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+    if python -c "import sys; sys.exit(0 if sys.version_info[0] >= 3 else 1)" >/dev/null 2>&1; then
+        PYTHON_BIN="python"
+    fi
+elif command -v py >/dev/null 2>&1; then
+    if py -3 -c "import sys; sys.exit(0)" >/dev/null 2>&1; then
+        PYTHON_BIN="py -3"
+    fi
+fi
+
+if [ -z "$PYTHON_BIN" ]; then
+    echo -e "\033[91m[!] Error: Python 3 no fue encontrado en tu sistema.\033[0m" >&2
+    echo "Instala Python 3 para poder ejecutar MDsave." >&2
+    exit 1
+fi
+
+# 3. Execute preserving current working directory and all CLI parameters
+exec $PYTHON_BIN "$REAL_SCRIPT" "$@"
