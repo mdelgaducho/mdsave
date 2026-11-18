@@ -53,7 +53,7 @@ El instalador detecta el gestor de paquetes de tu distribución (`apt`, `dnf`, `
 
 1. Clona el repositorio y entra al directorio:
    ```bash
-   git clone https://github.com/TU_USUARIO/mdsave.git
+   git clone https://github.com/mdelgaducho/mdsave.git
    cd mdsave
    ```
 2. Otorga permisos de ejecución y corre el instalador:
@@ -99,7 +99,7 @@ MDsave está completamente optimizado para Android a través de **Termux**.
    ```
 3. Clona el repositorio y accede a él:
    ```bash
-   git clone https://github.com/TU_USUARIO/mdsave.git
+   git clone https://github.com/mdelgaducho/mdsave.git
    cd mdsave
    ```
 4. Ejecuta el instalador automático:
@@ -150,7 +150,7 @@ chmod +x install.sh
    ```
 2. Clona el repositorio:
    ```bash
-   git clone https://github.com/TU_USUARIO/mdsave.git
+   git clone https://github.com/mdelgaducho/mdsave.git
    cd mdsave
    ```
 3. Corre el instalador universal:
